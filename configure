@@ -171,6 +171,7 @@ march_set="no"
 libiscsi="no"
 libnbd="no"
 libnfs="no"
+vdrive="no"
 libzbc=""
 dfs=""
 dynamic_engines="no"
@@ -215,6 +216,8 @@ for opt do
   --disable-gfapi) disable_gfapi="yes"
   ;;
   --enable-libhdfs) libhdfs="yes"
+  ;;
+  --enable-vdrive) vdrive="yes"
   ;;
   --disable-lex) disable_lex="yes"
   ;;
@@ -278,6 +281,7 @@ if test "$show_help" = "yes" ; then
   echo "--disable-gfapi         Disable gfapi"
   echo "--enable-libhdfs        Enable hdfs support"
   echo "--enable-libnfs         Enable nfs support"
+  echo "--enable-vdrive         Enable vdrive support"
   echo "--disable-lex           Disable use of lex/yacc for math"
   echo "--disable-pmem          Disable pmem based engines even if found"
   echo "--enable-lex            Enable use of lex/yacc for math"
@@ -2298,6 +2302,19 @@ fi
 print_config "NFS engine" "$libnfs"
 
 ##########################################
+# Check if we have vdrive (for userspace vdrive support).
+if test "$disable_vdrive" != "yes"; then
+  vdrive="yes"
+  vdrive_cflags=""
+  vdrive_libs=""
+else
+  if test "$vdrive" = "yes" ; then
+    echo "vdrive" "Install vdrive"
+  fi
+fi
+print_config "Vdrive engine" "$vdrive"
+
+##########################################
 # Check if we have lex/yacc available
 yacc="no"
 yacc_is_bison="no"
@@ -3124,6 +3141,9 @@ fi
 if test "$libnfs" = "yes" ; then
   output_sym "CONFIG_NFS"
 fi
+if test "$vdrive" = "yes" ; then
+  output_sym "CONFIG_VDRIVE"
+fi
 if test "$march_set" = "no" && test "$build_native" = "yes" ; then
   output_sym "CONFIG_BUILD_NATIVE"
 fi
@@ -3168,6 +3188,12 @@ if test "$libnfs" = "yes" ; then
   echo "CONFIG_LIBNFS=m" >> $config_host_mak
   echo "LIBNFS_CFLAGS=$libnfs_cflags" >> $config_host_mak
   echo "LIBNFS_LIBS=$libnfs_libs" >> $config_host_mak
+fi
+if test "$vdrive" = "yes" ; then
+  output_sym "CONFIG_VDRIVE"
+  echo "CONFIG_VDRIVE=m" >> $config_host_mak
+  echo "VDRIVE_CFLAGS=$vdrive_cflags" >> $config_host_mak
+  echo "VDRIVE_LIBS=$vdrive_libs" >> $config_host_mak
 fi
 if test "$dynamic_engines" = "yes" ; then
   output_sym "CONFIG_DYNAMIC_ENGINES"

@@ -91,6 +91,12 @@ ifdef CONFIG_LIBNFS
   SOURCE += engines/nfs.c
 endif
 
+ifdef CONFIG_VDRIVE
+  CFLAGS += $(VDRIVE_CFLAGS) -I ../cpu
+  LIBS += ../cpu/libvirtiofs-cpu.a
+  SOURCE += engines/vdrive.c
+endif
+
 ifdef CONFIG_64BIT
   CPPFLAGS += -DBITS_PER_LONG=64
 else ifdef CONFIG_32BIT
